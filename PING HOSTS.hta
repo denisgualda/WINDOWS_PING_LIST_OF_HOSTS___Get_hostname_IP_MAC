@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PING</title>
+ 
+    <HTA:APPLICATION
+        APPLICATIONNAME = "PING HOSTS"
+		id="PING HOSTS"
+		name="PING HOSTS"
+    />
+	
+	<script language="vbscript">
+	Const ForWriting = 0
+	
+	Dim objFSO, objFile, strFileName
+	strFileName = "temp_executa.txt"
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+	
+	Set objFile = objFSO.OpenTextFile(strFileName, 2, true)
+	Set objShell = CreateObject("WScript.Shell")
+	
+'-------------------------------------'
+'INICI BOTO EXECUTA'
+	Sub Executa
+		sTxtarea = txt_entrada.Value
+		objFile.Write sTxtarea & vbCRLF
+
+		
+		'EXECUTA PING LLEGINT DEL FITXER'
+		'---------------------------------------------------'
+		Dim objFSO: Set objFso = CreateObject("Scripting.FileSystemObject")
+
+		Set objReadFile= objFSO.OpenTextFile(strFileName, 1)
+
+		Do While Not objReadFile.AtEndOfStream
+		    strhost = objReadFile.readline
+		    Set oWMI = GetObject("winmgmts:\\.\root\cimv2")
+		    Set oPing = oWMI.Get("Win32_PingStatus.Address='"& strhost & "'")
+
+		    If oPing.StatusCode = 0 Then 
+		        resultat = resultat & vbCrLf  & strhost &  "    "  & oPing.ProtocolAddress
+		        txt_sortida.value = resultat
+		        
+		    Else
+		        resultat = resultat & vbCrLf  & strhost & "		NO PING"
+				txt_sortida.value = resultat
+		    End If
+		Loop
+		'---------------------------------------------------'
+
+	objFile.close
+
+'NETEJA FITXER TXT PER MOSTRAR DE NOU RESULTATS '
+neteja_fitxer
+
+End Sub
+
+'FI BOTO EXECUTA'
+'-------------------------------------'
+	
+'---------------------------------------------------'
+'FUNCIO EXECUTA PING'
+function actiu(strhost)
+   
+end function
+'---------------------------------------------------'
+
+
+'---------------------------------------------------'
+'FUNCIO NETEJA FITXER'
+function neteja_fitxer
+	strFileName = "temp_executa.txt"
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+	
+	Set objFile = objFSO.OpenTextFile(strFileName, 2, true)
+	Set objShell = CreateObject("WScript.Shell")
+	objFile.Write ""
+end function
+'---------------------------------------------------'
+
+'DEFINEIX TAMANY FINESTRA APLICACIO'
+sub window_onLoad
+	window.resizeTo 500,700
+end sub
+
+</script>
+	
+</head>
+ 
+<body>
+    <h1>PING HOSTS</h1>
+    <p><b>Llistat d'equips a realitzar PING</b></p>
+	
+	<textarea name="txt_entrada" rows=12 cols="50" ></textarea>
+	<br>
+	<br>
+    <input type="button" value="Executa" onclick="Executa">
+
+    <!-- CAIXA TEXT RESULTAT -->
+    <br>
+    <br>
+    <textarea name="txt_sortida" rows=12  cols=50> </textarea>
+	
+</body>
+ 
+</html>
