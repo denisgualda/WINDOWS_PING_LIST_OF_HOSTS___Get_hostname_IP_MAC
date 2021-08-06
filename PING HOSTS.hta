@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>PING</title>
+
+	<HTA:APPLICATION
+	APPLICATIONNAME = "PING HOSTS"
+	id="PING HOSTS"
+	name="PING HOSTS"
+	/>
+	
+	<script language="vbscript">
+
+		Sub Executa
+			strText = txt_entrada.value
+			arrLines = Split(strText, vbCrLf)
+
+			For Each strLine in arrLines
+
+				strhost = strLine
+				
+				Set oWMI = GetObject("winmgmts:\\.\root\cimv2")
+		    	Set oPing = oWMI.Get("Win32_PingStatus.Address='"& strhost & "'")
+
+				
+
+		    	If oPing.StatusCode = 0 Then 
+		    	mac = get_mac(strhost)
+		        resultat = resultat & vbCrLf  & strhost &  "    "  & oPing.ProtocolAddress & "	" & mac
+		        
+		        txt_sortida.value = resultat
+		        
+		    Else
+		        resultat = resultat & vbCrLf  & strhost & "	NO PING"
+				txt_sortida.value = resultat
+		    End If
+
+
+			Next
+
+	
+
+		End Sub
+
+		'FI BOTO EXECUTA'
+		'-------------------------------------'
+
+		
+'FUNCIO OBTENIR MAC EQUIP'
+function get_mac(strhost)
+Dim item
+Set objSWbemLocator = CreateObject("WbemScripting.SWbemLocator")
+Set objSWbemServices = objSWbemLocator.ConnectServer(strhost, _
+                                                         "Root\CIMv2", _
+                                                         strUser, _
+                                                         strPassword)
+        
+        Set wmiItemsxarxa = objSWbemServices.ExecQuery("SELECT * FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled = True")
+
+       
+        For Each item in wmiItemsxarxa
+        	With item
+                For Each strIPAddress in .IPaddress 
+                  get_mac = .MACAddress
+                Next
+            End With
+        Next
+
+end function
+
+'---------------------------------------------------'
+'FUNCIO NETEJA FITXER'
+function neteja_fitxer
+	strFileName = "temp_executa.txt"
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+	
+	Set objFile = objFSO.OpenTextFile(strFileName, 2, true)
+	Set objShell = CreateObject("WScript.Shell")
+	objFile.Write ""
+end function
+'---------------------------------------------------'
+
+'DEFINEIX TAMANY FINESTRA APLICACIO'
+sub window_onLoad
+	window.resizeTo 550,700
+end sub
+
+</script>
+	
+</head>
+ 
+<body>
+    <h1>PING HOSTS</h1>
+    <p><b>Llistat d'equips a realitzar PING</b></p>
+	
+	<textarea name="txt_entrada" rows=12 cols="55" ></textarea>
+	<br>
+	<br>
+    <input type="button" value="Executa" onclick="Executa">
+
+    <!-- CAIXA TEXT RESULTAT -->
+    <br>
+    <br>
+    <textarea name="txt_sortida" rows=12  cols=55> </textarea>
+	
+</body>
+ 
+</html>

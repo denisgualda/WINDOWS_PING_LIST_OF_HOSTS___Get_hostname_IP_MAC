@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PING SERVIDORS</title>
+ 
+    <HTA:APPLICATION
+        APPLICATIONNAME = "PING SERVIDORS"
+		id="PING SERVIDORS"
+		name="PING SERVIDORS"
+    />
+	
+	<script language="vbscript">
+	
+	Sub Executa
+				
+
+			strText = txt_entrada.value
+			arrLines = Split(strText, vbCrLf)
+
+			For Each strLine in arrLines
+		    strhost = strLine
+		    
+		    host_actiu = actiu(strhost) 'COMPROVA ESTAT DEL HOST (actiu /no actiu)'
+		    if host_actiu = true then
+		    	
+				 text= resultat & vbCrLf  & strhost & "		PING CORRECTE "
+				 escriu(text)
+
+		    else
+				
+				text = resultat & vbCrLf  & strhost & "		NO PING"
+				escriu(text)
+
+		    end if
+	Next
+		'---------------------------------------------------'
+
+
+
+End Sub
+
+function escriu(text)
+	txt_sortida.value = txt_sortida.value + text
+end function 
+
+'FI BOTO EXECUTA'
+'-------------------------------------'
+	
+'---------------------------------------------------'
+'FUNCIO EXECUTA PING'
+function actiu(strhost)
+    Set oWMI = GetObject("winmgmts:\\.\root\cimv2")
+    Set oPing = oWMI.Get("Win32_PingStatus.Address='"& strhost & "'")
+    If oPing.StatusCode = 0 Then 
+        actiu = true
+    Else
+        actiu = false
+    End If
+end function
+'---------------------------------------------------'
+
+
+'---------------------------------------------------'
+'FUNCIO NETEJA FITXER'
+function neteja_fitxer
+	strFileName = "temp_executa.txt"
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+	
+	Set objFile = objFSO.OpenTextFile(strFileName, 2, true)
+	Set objShell = CreateObject("WScript.Shell")
+	objFile.Write ""
+end function
+'---------------------------------------------------'
+
+sub window_onLoad
+	window.resizeTo 550,700
+end sub
+
+</script>
+	
+</head>
+ 
+<body>
+    <h1>PING SERVIDORS</h1>
+    <p><b>Llistat d'equips a realitzar PING</b></p>
+	
+	<textarea name="txt_entrada" rows=12 cols="55" ></textarea>
+	<br>
+	<br>
+    <input type="button" value="Executa" onclick="Executa">
+
+    <!-- CAIXA TEXT RESULTAT -->
+    <br>
+    <br>
+    <textarea name="txt_sortida" rows=12  cols=55> </textarea>
+	
+</body>
+ 
+</html>
